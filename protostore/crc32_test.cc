@@ -1,12 +1,12 @@
 #include "protostore/crc32.h"
 
 #include <cstdint>
+#include <zlib.h>
 
 #include "googlemock/include/gmock/gmock.h"
 #include "googletest/include/gtest/gtest.h"
 
 namespace protostore {
-
 namespace {
 
 using ::testing::Eq;
@@ -41,5 +41,4 @@ TEST(Crc32Test, Append) {
 }
 
 }  // namespace
-
-}  // namespace mobstore
+}  // namespace protostore
