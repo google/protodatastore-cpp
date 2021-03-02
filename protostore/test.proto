@@ -1,0 +1,3 @@
+message TestProto {
+  optional string value = 1;
+}

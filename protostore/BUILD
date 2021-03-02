@@ -1,4 +1,5 @@
-load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_proto_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
 
 cc_library(
     name = "crc32",
@@ -25,7 +26,6 @@ cc_library(
     name = "file-storage",
     srcs = ["file-storage.cc"],
     hdrs = ["file-storage.h"],
-    visibility = ["//visibility:private"],
     deps = [
       "@com_google_absl//absl/status",
       "@com_google_absl//absl/status:statusor",
@@ -69,6 +69,19 @@ cc_test(
     deps = [
         ":file-storage",
         ":proto-data-store",
+        ":test_cc_proto",
         "@googletest//:gtest_main",
     ],
+)
+
+cc_proto_library(
+    name = "test_cc_proto",
+    visibility = ["//visibility:private"],
+    deps = [":test_proto"],
+)
+
+proto_library(
+    name = "test_proto",
+    visibility = ["//visibility:private"],
+    srcs = ["test.proto"],
 )

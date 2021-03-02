@@ -8,6 +8,7 @@
 #include "protostore/file-storage.h"
 #include "protostore/status-matchers.h"
 #include "protostore/testfile-fixture.h"
+#include "protostore/test.pb.h"
 
 namespace protostore {
 namespace {

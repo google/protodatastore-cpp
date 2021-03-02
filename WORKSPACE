@@ -15,7 +15,13 @@ http_archive(
 )
 
 http_archive(
-    name = "protobuf",
+    name = "com_google_protobuf",
+    strip_prefix = "protobuf-master",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/master.zip"],
+)
+
+http_archive(
+    name = "com_google_protobuf_cc",
     strip_prefix = "protobuf-master",
     urls = ["https://github.com/protocolbuffers/protobuf/archive/master.zip"],
 )
