@@ -6,8 +6,8 @@
 // TODO(b/133793579, b/132637068): Consider exposing a checksum mismatch to
 //  callers.
 
-#ifndef PROTOSTORE_PROTO_DATA_STORE_H_
-#define PROTOSTORE_PROTO_DATA_STORE_H_
+#ifndef PDS_PROTO_DATA_STORE_H_
+#define PDS_PROTO_DATA_STORE_H_
 
 #include <cstdint>
 #include <memory>
@@ -16,12 +16,14 @@
 
 #include "absl/base/thread_annotations.h"
 #include "absl/synchronization/mutex.h"
+#include "absl/strings/str_format.h"
 #include "absl/strings/string_view.h"
 #include "absl/status/status.h"
 #include "absl/status/statusor.h"
 #include "google/protobuf/stubs/status_macros.h"
 #include "protostore/crc32.h"
 #include "protostore/file-storage.h"
+#include "protostore/status-macros.h"
 
 namespace protostore {
 
@@ -88,6 +90,9 @@ class ProtoDataStore final {
 };
 
 template <typename ProtoT>
+constexpr uint64_t ProtoDataStore<ProtoT>::kMaxFileSize;
+
+template <typename ProtoT>
 ProtoDataStore<ProtoT>::ProtoDataStore(
     const FileStorage& file_storage, absl::string_view filename)
     : file_storage_(file_storage), filename_(filename) {}
@@ -102,47 +107,47 @@ absl::StatusOr<const ProtoT*> ProtoDataStore<ProtoT>::Read() const {
     return cached_proto_.get();
   }
 
-  ASSIGN_OR_RETURN(uint64_t file_size, file_storage_.GetFileSize(filename_));
+  PDS_ASSIGN_OR_RETURN(uint64_t file_size, file_storage_.GetFileSize(filename_));
   if (file_size > kMaxFileSize) {
-    return util::InternalError(absl::StrCat(
+    return absl::InternalError(absl::StrCat(
         "File larger than expected, couldn't read: ", filename_));
   }
 
-  ASSIGN_OR_RETURN(std::unique_ptr<InputStream> input_stream,
+  PDS_ASSIGN_OR_RETURN(std::unique_ptr<InputStream> input_stream,
                    file_storage_.OpenForRead(filename_));
 
   // Used to hold the memory address and length of the read data.
   absl::string_view read;
 
   Header header;
-  RETURN_IF_ERROR(input_stream->Read(sizeof(Header), &read,
+  PDS_RETURN_IF_ERROR(input_stream->Read(sizeof(Header), &read,
                                      reinterpret_cast<char*>(&header)));
 
   if (header.magic != Header::kMagic) {
-    return util::InternalError(
+    return absl::InternalError(
         absl::StrCat("Invalid header kMagic for: ", filename_));
   }
 
   const uint64_t proto_size = file_size - sizeof(Header);
 
   // Used to hold the proto read from file.
-  auto scratch = std::make_unique<char[]>(proto_size);
+  auto scratch = absl::make_unique<char[]>(proto_size);
 
   // Now, |read.data()| points to the beginning of ProtoT.
-  RETURN_IF_ERROR(input_stream->Read(proto_size, &read, scratch.get()));
+  PDS_RETURN_IF_ERROR(input_stream->Read(proto_size, &read, scratch.get()));
 
   absl::string_view proto_str(read.data(), proto_size);
 
   Crc32 crc;
   crc.Append(proto_str);
   if (header.proto_checksum != crc.Get()) {
-    return util::InternalError(
+    return absl::InternalError(
         absl::StrCat("Checksum of file does not match: ", filename_));
   }
 
-  auto proto = std::make_unique<ProtoT>();
+  auto proto = absl::make_unique<ProtoT>();
   if (!proto->ParseFromArray(read.data(), proto_size)) {
-    return util::InternalError(
+    return absl::InternalError(
         absl::StrCat("Proto parse failed. File corrupted: ", filename_));
   }
 
@@ -156,7 +161,7 @@ absl::Status ProtoDataStore<ProtoT>::Write(std::unique_ptr<ProtoT> new_proto) {
 
   const std::string new_proto_str = new_proto->SerializeAsString();
   if (new_proto_str.size() >= kMaxFileSize) {
-    return util::InvalidArgumentError(
+    return absl::InvalidArgumentError(
         absl::StrFormat("New proto too large. size: %lu; limit: %lu.",
                         new_proto_str.size(), kMaxFileSize));
   }
@@ -166,7 +171,7 @@ absl::Status ProtoDataStore<ProtoT>::Write(std::unique_ptr<ProtoT> new_proto) {
     return absl::OkStatus();
   }
 
-  ASSIGN_OR_RETURN(std::unique_ptr<OutputStream> output_stream,
+  PDS_ASSIGN_OR_RETURN(std::unique_ptr<OutputStream> output_stream,
                    file_storage_.OpenForWrite(filename_));
 
   Crc32 crc;
@@ -174,12 +179,12 @@ absl::Status ProtoDataStore<ProtoT>::Write(std::unique_ptr<ProtoT> new_proto) {
   const Header header{.magic = Header::kMagic, .proto_checksum = crc.Get()};
 
   // Write the header to output stream.
-  RETURN_IF_ERROR(output_stream->Append(absl::string_view(
+  PDS_RETURN_IF_ERROR(output_stream->Append(absl::string_view(
       reinterpret_cast<const char*>(&header), sizeof(Header))));
 
   // Write the new proto to output stream.
-  RETURN_IF_ERROR(output_stream->Append(new_proto_str));
-  RETURN_IF_ERROR(output_stream->Close());
+  PDS_RETURN_IF_ERROR(output_stream->Append(new_proto_str));
+  PDS_RETURN_IF_ERROR(output_stream->Close());
 
   cached_proto_ = std::move(new_proto);
   return absl::OkStatus();
@@ -187,4 +192,4 @@ absl::Status ProtoDataStore<ProtoT>::Write(std::unique_ptr<ProtoT> new_proto) {
 
 }  // namespace protostore
 
-#endif  // PROTOSTORE_PROTO_DATA_STORE_H_
+#endif  // PDS_PROTO_DATA_STORE_H_

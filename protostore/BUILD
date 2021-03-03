@@ -18,8 +18,8 @@ cc_test(
     deps = [
         ":crc32",
         "@googletest//:gtest_main",
+        "@zlib//:zlib",
     ],
-    linkopts = ["-lz"]
 )
 
 cc_library(
@@ -36,19 +36,22 @@ cc_test(
     name = "file-storage_test",
     srcs = [
       "file-storage_test.cc",
-      "status-matchers.h",
       "testfile-fixture.h"
     ],
     visibility = ["//visibility:private"],
     deps = [
         ":file-storage",
+        ":testing-matchers",
         "@googletest//:gtest_main",
     ],
 )
 
 cc_library(
   name = "proto-data-store",
-  hdrs = ["proto-data-store.h"],
+  srcs = [
+    "proto-data-store.h",
+    "status-macros.h"
+  ],
   deps = [
     ":crc32",
     ":file-storage",
@@ -62,16 +65,27 @@ cc_test(
     name = "proto-data-store_test",
     srcs = [
       "proto-data-store_test.cc",
-      "status-matchers.h",
       "testfile-fixture.h"
     ],
     visibility = ["//visibility:private"],
     deps = [
+        ":testing-matchers",
         ":file-storage",
         ":proto-data-store",
         ":test_cc_proto",
         "@googletest//:gtest_main",
     ],
+)
+
+cc_library(
+  name = "testing-matchers",
+  srcs = ["testing-matchers.h"],
+  visibility = ["//visibility:private"],
+  deps = [
+    "@com_google_absl//absl/status",
+    "@com_google_absl//absl/status:statusor",
+    "@com_google_protobuf//:protobuf",
+  ]
 )
 
 cc_proto_library(

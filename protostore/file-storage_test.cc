@@ -5,7 +5,7 @@
 #include "absl/strings/str_cat.h"
 #include "googlemock/include/gmock/gmock.h"
 #include "googletest/include/gtest/gtest.h"
-#include "protostore/status-matchers.h"
+#include "protostore/testing-matchers.h"
 #include "protostore/testfile-fixture.h"
 
 namespace protostore {
@@ -13,6 +13,8 @@ namespace {
 
 using ::testing::Eq;
 using ::testing::StartsWith;
+using testing::IsOk;
+using testing::IsStatusCode;
 
 class FileStorageTest : public testing::TestFileFixture {};
 
@@ -20,12 +22,12 @@ TEST_F(FileStorageTest, SmallWriteRead) {
   FileStorage storage;
   std::string testfile = TestFile("SmallWriteRead");
   auto out = storage.OpenForWrite(testfile);
-  ASSERT_THAT(out, testing::IsOk());
+  ASSERT_THAT(out, IsOk());
   ASSERT_OK((*out)->Append("small"));
   ASSERT_OK((*out)->Close());
 
   auto in = storage.OpenForRead(testfile);
-  ASSERT_THAT(in, testing::IsOk());
+  ASSERT_THAT(in, IsOk());
   char buffer[1024];
   absl::string_view result;
   ASSERT_OK((*in)->Read(5, &result, buffer));
@@ -36,12 +38,12 @@ TEST_F(FileStorageTest, ReadALittleAtATime) {
   FileStorage storage;
   std::string testfile = TestFile("ReadALittleAtATime");
   auto out = storage.OpenForWrite(testfile);
-  ASSERT_THAT(out, testing::IsOk());
+  ASSERT_THAT(out, IsOk());
   ASSERT_OK((*out)->Append("fred did feed the three red fish"));
   ASSERT_OK((*out)->Close());
 
   auto in = storage.OpenForRead(testfile);
-  ASSERT_THAT(in, testing::IsOk());
+  ASSERT_THAT(in, IsOk());
   char buffer[1024];
   absl::string_view result;
   ASSERT_OK((*in)->Read(5, &result, buffer));
@@ -56,16 +58,16 @@ TEST_F(FileStorageTest, ReadTooFar) {
   FileStorage storage;
   std::string testfile = TestFile("ReadTooFar");
   auto out = storage.OpenForWrite(testfile);
-  ASSERT_THAT(out, testing::IsOk());
+  ASSERT_THAT(out, IsOk());
   ASSERT_OK((*out)->Append("a"));
   ASSERT_OK((*out)->Close());
 
   auto in = storage.OpenForRead(testfile);
-  ASSERT_THAT(in, testing::IsOk());
+  ASSERT_THAT(in, IsOk());
   char buffer[1024];
   absl::string_view result;
   ASSERT_THAT((*in)->Read(10, &result, buffer),
-    testing::IsStatusCode(absl::StatusCode::kOutOfRange));
+    IsStatusCode(absl::StatusCode::kOutOfRange));
 }
 
 TEST_F(FileStorageTest, OutputAutoFlushes) {
@@ -73,13 +75,13 @@ TEST_F(FileStorageTest, OutputAutoFlushes) {
   std::string testfile = TestFile("OutputAutoFlushes");
   {
     auto out = storage.OpenForWrite(testfile);
-    ASSERT_THAT(out, testing::IsOk());
+    ASSERT_THAT(out, IsOk());
     ASSERT_OK((*out)->Append("testing the flushing"));
     // Goes out of scope so flushes and closes.
   }
 
   auto in = storage.OpenForRead(testfile);
-  ASSERT_THAT(in, testing::IsOk());
+  ASSERT_THAT(in, IsOk());
   char buffer[1024];
   absl::string_view result;
   ASSERT_OK((*in)->Read(20, &result, buffer));
@@ -90,17 +92,17 @@ TEST_F(FileStorageTest, WritesNeedFlushing) {
   FileStorage storage;
   std::string testfile = TestFile("WritesNeedFlushing");
   auto out = storage.OpenForWrite(testfile);
-  ASSERT_THAT(out, testing::IsOk());
+  ASSERT_THAT(out, IsOk());
   ASSERT_OK((*out)->Append("testing the flushing"));
   // Not closed.
 
   auto in = storage.OpenForRead(testfile);
-  ASSERT_THAT(in, testing::IsOk());
+  ASSERT_THAT(in, IsOk());
   char buffer[1024];
   absl::string_view result;
 
   ASSERT_THAT((*in)->Read(20, &result, buffer),
-    testing::IsStatusCode(absl::StatusCode::kOutOfRange));
+    IsStatusCode(absl::StatusCode::kOutOfRange));
 
   ASSERT_OK((*out)->Close());
 
@@ -114,14 +116,14 @@ TEST_F(FileStorageTest, LargeWriteRead) {
   FileStorage storage;
   std::string testfile = TestFile("LargeWriteRead");
   auto out = storage.OpenForWrite(testfile);
-  ASSERT_THAT(out, testing::IsOk());
+  ASSERT_THAT(out, IsOk());
   for (int i = 0; i < 10000; i++) {
     ASSERT_OK((*out)->Append("LARGE"));
   }
   ASSERT_OK((*out)->Close());
 
   auto in = storage.OpenForRead(testfile);
-  ASSERT_THAT(in, testing::IsOk());
+  ASSERT_THAT(in, IsOk());
   char buffer[50000];
   absl::string_view result;
   ASSERT_OK((*in)->Read(50000, &result, buffer));
@@ -134,7 +136,7 @@ TEST_F(FileStorageTest, FileNotFound) {
   std::string testfile = TestFile("FileNotFound");
 
   auto in = storage.OpenForRead(testfile);
-  ASSERT_THAT(in, testing::IsStatusCode(absl::StatusCode::kNotFound));
+  ASSERT_THAT(in, IsStatusCode(absl::StatusCode::kNotFound));
 }
 
 TEST_F(FileStorageTest, GetFileSizeNotFound) {
@@ -142,7 +144,7 @@ TEST_F(FileStorageTest, GetFileSizeNotFound) {
   std::string testfile = TestFile("GetFileSizeNotFound");
 
   auto size = storage.GetFileSize(testfile);
-  ASSERT_THAT(size, testing::IsStatusCode(absl::StatusCode::kNotFound));
+  ASSERT_THAT(size, IsStatusCode(absl::StatusCode::kNotFound));
 }
 
 TEST_F(FileStorageTest, GetFileSize) {
@@ -150,7 +152,7 @@ TEST_F(FileStorageTest, GetFileSize) {
   std::string testfile = TestFile("GetFileSize");
   {
     auto out = storage.OpenForWrite(testfile);
-    ASSERT_THAT(out, testing::IsOk());
+    ASSERT_THAT(out, IsOk());
     ASSERT_OK((*out)->Append("0123456789"));
   }
 
