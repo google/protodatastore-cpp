@@ -39,9 +39,6 @@ namespace protostore {
 /// using mmap and ideally, not even using protos.
 ///
 /// This class is go/thread-compatible
-///
-/// TODO(b/133793579, b/132637068): Consider exposing a checksum mismatch to
-///  callers.
 template <typename ProtoT>
 class ProtoDataStore final {
  public:

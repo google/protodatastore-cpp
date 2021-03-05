@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// A lightweight implementation of MobStore File API using simple file
-// paths instead of URIs.
 #ifndef PROTOSTORE_FILE_STORAGE_H_
 #define PROTOSTORE_FILE_STORAGE_H_
 
