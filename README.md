@@ -11,6 +11,9 @@ A simple file-backed proto with an in-memory cache.
 ## Usage
 
 ``` c++
+#include "protostore/file-storage.h"
+#include "protostore/proto-data-store.h"
+
 FileStorage storage;
 ProtoDataStore<TestProto> pds(storage, testfile);
 
