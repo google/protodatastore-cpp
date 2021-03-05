@@ -1,10 +1,16 @@
-// A simple file-backed proto with an in-memory cache.
-// WARNING: Only use this for small protos. Files storing larger protos can
-// benefit from more sophisticated strategies like chunked reads/writes,
-// using mmap and ideally, not even using protos.
+// Copyright (C) 2021 Google LLC
 //
-// TODO(b/133793579, b/132637068): Consider exposing a checksum mismatch to
-//  callers.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #ifndef PDS_PROTO_DATA_STORE_H_
 #define PDS_PROTO_DATA_STORE_H_
@@ -27,7 +33,15 @@
 
 namespace protostore {
 
-// This class is go/thread-compatible
+/// \brief A simple file-backed proto with an in-memory cache.
+/// WARNING: Only use this for small protos. Files storing larger protos can
+/// benefit from more sophisticated strategies like chunked reads/writes,
+/// using mmap and ideally, not even using protos.
+///
+/// This class is go/thread-compatible
+///
+/// TODO(b/133793579, b/132637068): Consider exposing a checksum mismatch to
+///  callers.
 template <typename ProtoT>
 class ProtoDataStore final {
  public:
