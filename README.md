@@ -6,7 +6,7 @@ A simple file-backed proto with an in-memory cache.
 
 1. Caches proto in RAM after first read for performance.
 1. Uses a checksum to verify integrity of data.
-1. Uses Abseil Status, StatusOr for error handling.
+1. Leverages modern [Abseil](https://abseil.io/) error handling and memory management.
 
 ## Usage
 
