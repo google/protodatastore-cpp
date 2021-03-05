@@ -1,7 +1,8 @@
 #include "protostore/crc32.h"
 
-#include <cstdint>
 #include <zlib.h>
+
+#include <cstdint>
 
 #include "googlemock/include/gmock/gmock.h"
 #include "googletest/include/gtest/gtest.h"

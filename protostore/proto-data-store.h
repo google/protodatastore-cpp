@@ -15,11 +15,11 @@
 #include <utility>
 
 #include "absl/base/thread_annotations.h"
-#include "absl/synchronization/mutex.h"
-#include "absl/strings/str_format.h"
-#include "absl/strings/string_view.h"
 #include "absl/status/status.h"
 #include "absl/status/statusor.h"
+#include "absl/strings/str_format.h"
+#include "absl/strings/string_view.h"
+#include "absl/synchronization/mutex.h"
 #include "google/protobuf/stubs/status_macros.h"
 #include "protostore/crc32.h"
 #include "protostore/file-storage.h"

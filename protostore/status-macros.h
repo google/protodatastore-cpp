@@ -24,12 +24,12 @@ inline const absl::Status AsStatus(const absl::StatusOr<T>& status_or) {
  *       return PDS_STATUS(OK);
  *     }
  */
-#define PDS_RETURN_IF_ERROR(expr)                            \
-  do {                                                       \
+#define PDS_RETURN_IF_ERROR(expr)                     \
+  do {                                                \
     absl::Status __status = internal::AsStatus(expr); \
-    if (__status.code() != absl::StatusCode::kOk) {                \
-      return (__status);                                     \
-    }                                                        \
+    if (__status.code() != absl::StatusCode::kOk) {   \
+      return (__status);                              \
+    }                                                 \
   } while (false)
 
 /**
