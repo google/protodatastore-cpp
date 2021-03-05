@@ -26,98 +26,83 @@ class ProtoDataStoreTest : public testing::TestFileFixture {};
 
 TEST_F(ProtoDataStoreTest, SimpleReadWriteTest) {
   FileStorage storage;
-  TestProto document;
-  document.set_value("SimpleReadWriteTest");
-  ProtoDataStore<TestProto> pds(storage, TestFile("SimpleReadWriteTest"));
+  TestProto testproto;
+  testproto.set_string_value("SimpleReadWriteTest");
+  std::string testfile = TestFile("SimpleReadWriteTest");
+  ProtoDataStore<TestProto> pds(storage, testfile);
 
-  ASSERT_OK(pds.Write(absl::make_unique<TestProto>(document)));
-  EXPECT_THAT(pds.Read(), IsOkAndHolds(Pointee(EqualsProto(document))));
+  ASSERT_OK(pds.Write(absl::make_unique<TestProto>(testproto)));
+  EXPECT_THAT(pds.Read(), IsOkAndHolds(Pointee(EqualsProto(testproto))));
   // Multiple reads work.
-  EXPECT_THAT(pds.Read(), IsOkAndHolds(Pointee(EqualsProto(document))));
-  EXPECT_THAT(pds.Read(), IsOkAndHolds(Pointee(EqualsProto(document))));
+  EXPECT_THAT(pds.Read(), IsOkAndHolds(Pointee(EqualsProto(testproto))));
+  EXPECT_THAT(pds.Read(), IsOkAndHolds(Pointee(EqualsProto(testproto))));
 }
-/*
+
 TEST_F(ProtoDataStoreTest, DataPersistsAcrossMultipleInstancesTest) {
   FileStorage storage;
-  TestProto document =
-      DocumentBuilder().SetKey("namespace", "google.com").Build();
+  TestProto testproto;
+  testproto.set_string_value("DataPersistsAcrossMultipleInstancesTest");
+  std::string testfile = TestFile("DataPersistsAcrossMultipleInstancesTest");
   {
-    FileBackedProto<TestProto> file_proto(storage, filename_);
-    EXPECT_THAT(file_proto.Read(), Not(IsOk()));  // Nothing to read.
-    ICING_ASSERT_OK(
-        file_proto.Write(absl::make_unique<TestProto>(document)));
-    EXPECT_THAT(file_proto.Read(),
-                IsOkAndHolds(Pointee(EqualsProto(document))));
+    ProtoDataStore<TestProto> pds(storage, testfile);
+    EXPECT_THAT(pds.Read(), Not(IsOk()));  // Nothing to read.
+    ASSERT_OK(
+        pds.Write(absl::make_unique<TestProto>(testproto)));
+    EXPECT_THAT(pds.Read(),
+                IsOkAndHolds(Pointee(EqualsProto(testproto))));
   }
   {
-    // Different instance of FileBackedProto.
-    FileBackedProto<TestProto> file_proto(storage, filename_);
-    EXPECT_THAT(file_proto.Read(),
-                IsOkAndHolds(Pointee(EqualsProto(document))));
+    // Different instance of ProtoDataStore.
+    ProtoDataStore<TestProto> pds(storage, testfile);
+    EXPECT_THAT(pds.Read(),
+                IsOkAndHolds(Pointee(EqualsProto(testproto))));
   }
 }
+
 TEST_F(ProtoDataStoreTest, MultipleUpdatesToProtoTest) {
   FileStorage storage;
-  TestProto googleProto =
-      DocumentBuilder().SetKey("namespace", "google.com").Build();
-  TestProto youtubeProto =
-      DocumentBuilder().SetKey("namespace", "youtube.com").Build();
-  TestProto wazeProto =
-      DocumentBuilder().SetKey("namespace", "waze.com").Build();
-  {
-    FileBackedProto<TestProto> file_proto(storage, filename_);
-    ICING_ASSERT_OK(
-        file_proto.Write(absl::make_unique<TestProto>(googleProto)));
-    EXPECT_THAT(file_proto.Read(),
-                IsOkAndHolds(Pointee(EqualsProto(googleProto))));
-    ICING_ASSERT_OK(
-        file_proto.Write(absl::make_unique<TestProto>(youtubeProto)));
-    EXPECT_THAT(file_proto.Read(),
-                IsOkAndHolds(Pointee(EqualsProto(youtubeProto))));
-  }
-  {
-    // Different instance of FileBackedProto.
-    FileBackedProto<TestProto> file_proto(storage, filename_);
-    EXPECT_THAT(file_proto.Read(),
-                IsOkAndHolds(Pointee(EqualsProto(youtubeProto))));
-    ICING_ASSERT_OK(
-        file_proto.Write(absl::make_unique<TestProto>(wazeProto)));
-    EXPECT_THAT(file_proto.Read(),
-                IsOkAndHolds(Pointee(EqualsProto(wazeProto))));
-    ICING_ASSERT_OK(
-        file_proto.Write(absl::make_unique<TestProto>(googleProto)));
-    EXPECT_THAT(file_proto.Read(),
-                IsOkAndHolds(Pointee(EqualsProto(googleProto))));
+  std::string testfile = TestFile("MultipleUpdatesToProtoTest");
+  ProtoDataStore<TestProto> pds(storage, testfile);
+  for (int i = 0; i < 10; i++) {
+    TestProto testproto;
+    testproto.set_string_value("MultipleUpdatesToProtoTest");
+    testproto.set_int_value(i);
+    ASSERT_OK(pds.Write(absl::make_unique<TestProto>(testproto)));
+    EXPECT_THAT(pds.Read(),
+                IsOkAndHolds(Pointee(EqualsProto(testproto))));
   }
 }
-TEST_F(ProtoDataStoreTest, InvalidFilenameTest) {
+
+TEST_F(ProtoDataStoreTest, InvalidtestfileTest) {
   FileStorage storage;
-  TestProto document =
-      DocumentBuilder().SetKey("namespace", "google.com").Build();
-  FileBackedProto<TestProto> file_proto(storage, "");
-  EXPECT_THAT(file_proto.Read(), Not(IsOk()));
-  EXPECT_THAT(file_proto.Write(absl::make_unique<TestProto>(document)),
+  TestProto testproto;
+  testproto.set_string_value("InvalidtestfileTest");
+  std::string invalid_testfile = "";
+  ProtoDataStore<TestProto> pds(storage, invalid_testfile);
+  EXPECT_THAT(pds.Read(), Not(IsOk()));
+  EXPECT_THAT(pds.Write(absl::make_unique<TestProto>(testproto)),
               Not(IsOk()));
 }
+
 TEST_F(ProtoDataStoreTest, FileCorruptionTest) {
   FileStorage storage;
-  TestProto document =
-      DocumentBuilder().SetKey("namespace", "google.com").Build();
+  std::string testfile = TestFile("FileCorruptionTest");
+  TestProto testproto;
+  testproto.set_string_value("FileCorruptionTest");
   {
-    FileBackedProto<TestProto> file_proto(storage, filename_);
-    ICING_ASSERT_OK(
-        file_proto.Write(absl::make_unique<TestProto>(document)));
-    EXPECT_THAT(file_proto.Read(),
-                IsOkAndHolds(Pointee(EqualsProto(document))));
+    ProtoDataStore<TestProto> pds(storage, testfile);
+    ASSERT_OK(pds.Write(absl::make_unique<TestProto>(testproto)));
   }
-  document.set_uri("g00gle.com");
-  std::string document_str = document.SerializeAsString();
-  storage.PWrite(filename_.c_str(),
-                     /offset=/sizeof(FileBackedProto<TestProto>::Header),
-                     document_str.data(), document_str.size());
-  FileBackedProto<TestProto> file_proto(storage, filename_);
-  EXPECT_THAT(file_proto.Read(), Not(IsOk()));
+  {
+    auto out = storage.OpenForWrite(testfile);
+    ASSERT_THAT(out, IsOk());
+    ASSERT_OK((*out)->Append("junk"));
+  }
+  {
+    ProtoDataStore<TestProto> pds(storage, testfile);
+    EXPECT_THAT(pds.Read(), Not(IsOk()));
+  }
 }
-*/
+
 }  // namespace
 }  // namespace protostore

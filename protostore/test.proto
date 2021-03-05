@@ -1,3 +1,4 @@
 message TestProto {
-  optional string value = 1;
+  optional string string_value = 1;
+  optional int32 int_value = 2;
 }
