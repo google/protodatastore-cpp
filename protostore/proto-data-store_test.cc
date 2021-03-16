@@ -28,9 +28,7 @@
 namespace protostore {
 namespace {
 
-using ::testing::Eq;
 using ::testing::Not;
-using ::testing::StartsWith;
 using ::testing::Pointee;
 
 using testing::IsOk;
