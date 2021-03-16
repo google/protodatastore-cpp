@@ -40,4 +40,4 @@ uint32_t Crc32::Append(const absl::string_view str) {
   return crc_;
 }
 
-}  // namespace mobstore
+}  // namespace protostore

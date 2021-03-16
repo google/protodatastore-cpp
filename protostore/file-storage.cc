@@ -257,4 +257,4 @@ absl::StatusOr<std::unique_ptr<OutputStream>> FileStorage::OpenForWrite(
   return absl::make_unique<OutputStream>(filename, file);
 }
 
-}  // namespace mobstore
+}  // namespace protostore
