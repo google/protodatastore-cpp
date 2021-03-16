@@ -79,6 +79,7 @@ cc_test(
         ":test_cc_proto",
         ":testing-matchers",
         "@com_google_absl//absl/strings",
+        "@com_google_protobuf//:protobuf",
         "@googletest//:gtest_main",
     ],
 )
