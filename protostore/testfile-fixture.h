@@ -32,7 +32,7 @@ using ::testing::NotNull;
 
 class TestFileFixture : public ::testing::Test {
  public:
-  void SetUp() {
+  void SetUp() override {
 #ifdef __ANDROID__
     char tmpl[] = "/data/local/tmp/file-storage.XXXXXX";
 #else
@@ -43,7 +43,7 @@ class TestFileFixture : public ::testing::Test {
     testdir_ = tmpdir;
   }
 
-  void TearDown() {
+  void TearDown() override {
     DIR* dir = opendir(testdir_.c_str());
     ASSERT_THAT(dir, NotNull()) << testdir_ << ": " << strerror(errno);
     struct dirent *entry;
@@ -52,6 +52,7 @@ class TestFileFixture : public ::testing::Test {
       unlink(filename.c_str());
     }
     ASSERT_THAT(rmdir(testdir_.c_str()), Ne(-1)) << strerror(errno);
+    ASSERT_THAT(closedir(dir), Ne(-1)) << strerror(errno);
   }
 
   std::string TestFile(absl::string_view name) {
