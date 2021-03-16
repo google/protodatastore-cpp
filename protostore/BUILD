@@ -54,6 +54,7 @@ cc_library(
         "proto-data-store.h",
         "status-macros.h",
     ],
+    hdrs = ["proto-data-store.h"],
     deps = [
         ":crc32",
         ":file-storage",
