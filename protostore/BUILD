@@ -99,4 +99,3 @@ proto_library(
     srcs = ["test.proto"],
     visibility = ["//visibility:private"],
 )
-
