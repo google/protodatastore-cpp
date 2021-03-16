@@ -28,7 +28,7 @@ namespace {
 using ::testing::Eq;
 using ::testing::StartsWith;
 using testing::IsOk;
-using testing::IsStatusCode;
+using testing::StatusIs;
 
 class FileStorageTest : public testing::TestFileFixture {};
 
@@ -81,7 +81,7 @@ TEST_F(FileStorageTest, ReadTooFar) {
   char buffer[1024];
   absl::string_view result;
   ASSERT_THAT((*in)->Read(10, &result, buffer),
-    IsStatusCode(absl::StatusCode::kOutOfRange));
+    StatusIs(absl::StatusCode::kOutOfRange));
 }
 
 TEST_F(FileStorageTest, OutputAutoFlushes) {
@@ -116,7 +116,7 @@ TEST_F(FileStorageTest, WritesNeedFlushing) {
   absl::string_view result;
 
   ASSERT_THAT((*in)->Read(20, &result, buffer),
-    IsStatusCode(absl::StatusCode::kOutOfRange));
+    StatusIs(absl::StatusCode::kOutOfRange));
 
   ASSERT_OK((*out)->Close());
 
@@ -150,7 +150,7 @@ TEST_F(FileStorageTest, FileNotFound) {
   std::string testfile = TestFile("FileNotFound");
 
   auto in = storage.OpenForRead(testfile);
-  ASSERT_THAT(in, IsStatusCode(absl::StatusCode::kNotFound));
+  ASSERT_THAT(in, StatusIs(absl::StatusCode::kNotFound));
 }
 
 TEST_F(FileStorageTest, GetFileSizeNotFound) {
@@ -158,7 +158,7 @@ TEST_F(FileStorageTest, GetFileSizeNotFound) {
   std::string testfile = TestFile("GetFileSizeNotFound");
 
   auto size = storage.GetFileSize(testfile);
-  ASSERT_THAT(size, IsStatusCode(absl::StatusCode::kNotFound));
+  ASSERT_THAT(size, StatusIs(absl::StatusCode::kNotFound));
 }
 
 TEST_F(FileStorageTest, GetFileSize) {

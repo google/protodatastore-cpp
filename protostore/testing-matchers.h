@@ -163,7 +163,7 @@ class ProtoStringMatcher {
 
 }  // namespace
 
-PolymorphicMatcher<StatusCodeMatcher> IsStatusCode(
+PolymorphicMatcher<StatusCodeMatcher> StatusIs(
     absl::StatusCode code) {
   return MakePolymorphicMatcher(StatusCodeMatcher(code));
 }
