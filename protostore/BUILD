@@ -7,6 +7,7 @@ cc_library(
     visibility = ["//visibility:private"],
     deps = [
         "@com_google_absl//absl/strings",
+        "@zlib",
     ],
 )
 
