@@ -78,6 +78,7 @@ cc_test(
         ":proto-data-store",
         ":test_cc_proto",
         ":testing-matchers",
+        "@com_google_absl//absl/strings",
         "@googletest//:gtest_main",
     ],
 )
