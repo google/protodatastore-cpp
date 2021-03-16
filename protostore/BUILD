@@ -43,6 +43,7 @@ cc_test(
     deps = [
         ":file-storage",
         ":testing-matchers",
+        "@com_google_absl//absl/strings",
         "@googletest//:gtest_main",
     ],
 )
