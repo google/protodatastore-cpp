@@ -18,8 +18,8 @@
 
 #include "absl/strings/str_cat.h"
 #include "google/protobuf/message.h"
-#include "googlemock/include/gmock/gmock.h"
-#include "googletest/include/gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 #include "protostore/file-storage.h"
 #include "protostore/testing-matchers.h"
 #include "protostore/testfile-fixture.h"
