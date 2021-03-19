@@ -26,6 +26,7 @@ cc_library(
     name = "file-storage",
     srcs = ["file-storage.cc"],
     hdrs = ["file-storage.h"],
+    visibility = ["//visibility:public"],
     deps = [
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/status:statusor",
@@ -55,6 +56,7 @@ cc_library(
         "status-macros.h",
     ],
     hdrs = ["proto-data-store.h"],
+    visibility = ["//visibility:public"],
     deps = [
         ":crc32",
         ":file-storage",
