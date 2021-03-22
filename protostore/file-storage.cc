@@ -17,6 +17,7 @@
 #include <cstdint>
 #include <sys/stat.h>
 
+#include "absl/strings/str_cat.h"
 #include "absl/strings/string_view.h"
 
 namespace protostore {
